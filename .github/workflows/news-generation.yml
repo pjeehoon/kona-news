@@ -1,0 +1,102 @@
+name: Generate News Articles
+
+on:
+  schedule:
+    # Run at 9 AM KST (0 UTC) daily
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Run without generating articles'
+        required: false
+        default: true
+        type: boolean
+
+# Prevent running on forks
+jobs:
+  check-permission:
+    runs-on: ubuntu-latest
+    outputs:
+      is-owner: ${{ steps.check.outputs.is-owner }}
+    steps:
+      - id: check
+        run: |
+          if [[ "${{ github.repository_owner }}" == "pjeehoon" ]]; then
+            echo "is-owner=true" >> $GITHUB_OUTPUT
+          else
+            echo "is-owner=false" >> $GITHUB_OUTPUT
+          fi
+
+  generate-news:
+    needs: check-permission
+    if: needs.check-permission.outputs.is-owner == 'true'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Collect News (No API)
+      run: |
+        python scripts/collect_news.py
+    
+    - name: List collected news
+      run: |
+        echo "Collected news files:"
+        ls -la news_data/
+    
+    - name: Generate Articles (Uses API)
+      if: github.event.inputs.dry_run != 'true'
+      env:
+        CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
+        GPT4_API_KEY: ${{ secrets.GPT4_API_KEY }}
+        AI_MODEL: ${{ secrets.AI_MODEL || 'claude' }}
+        MAX_ARTICLES_PER_RUN: ${{ secrets.MAX_ARTICLES_PER_RUN || '5' }}
+      run: |
+        python scripts/generate_articles.py
+    
+    - name: List generated articles
+      if: github.event.inputs.dry_run != 'true'
+      run: |
+        echo "Generated articles:"
+        ls -la generated_articles/ || echo "No articles generated"
+    
+    - name: Generate HTML pages
+      if: github.event.inputs.dry_run != 'true'
+      run: |
+        python scripts/render_html.py || echo "HTML rendering script not yet implemented"
+    
+    - name: Upload artifacts
+      if: github.event.inputs.dry_run != 'true'
+      uses: actions/upload-artifact@v3
+      with:
+        name: generated-articles
+        path: |
+          generated_articles/
+          output/
+    
+    - name: Deploy to Cloudflare Pages
+      if: github.event.inputs.dry_run != 'true' && env.CLOUDFLARE_API_TOKEN != ''
+      env:
+        CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      run: |
+        echo "Deployment to Cloudflare Pages will be implemented in Phase 2"
+        # npx wrangler pages publish output --project-name=kona-news

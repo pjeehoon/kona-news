@@ -15,6 +15,7 @@ KONA is an open-source platform that automatically collects, analyzes, and gener
 - ✅ **교차 검증 시스템**: 여러 소스를 통한 사실 확인 및 신뢰도 향상
 - 📱 **반응형 웹 디자인**: 모든 기기에서 최적화된 읽기 경험
 - 🌏 **오픈소스**: 투명한 개발 과정과 커뮤니티 기여 환영
+- 🔒 **보안**: AI API는 원저자의 GitHub Actions에서만 실행되어 API 비용 보호
 
 ## 기술 스택 (Tech Stack)
 
