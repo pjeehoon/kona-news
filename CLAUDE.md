@@ -57,6 +57,10 @@ python scripts/generate_articles.py
 # Triggered automatically on push to main branch
 ```
 
+# Run python code automatically
+to run a code for yourself, run conda run -n kona python xxx.py
+
+
 ## Architecture Overview
 
 1. **News Collection Module** (`scripts/collect_news.py`): Fetches RSS feeds from Korean news sources (Naver, Daum)
