@@ -129,8 +129,13 @@ class ArticleGenerator:
         try:
             self.rate_limiter.wait_if_needed()
             
+            # Get model name from environment or default
+            model_name = os.getenv('AI_MODEL', 'gpt-4-turbo')
+            if model_name == 'gpt4':
+                model_name = 'gpt-4-turbo'
+            
             response = self.openai_client.chat.completions.create(
-                model="gpt-4-turbo",
+                model=model_name,
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": prompt}
@@ -173,7 +178,7 @@ class ArticleGenerator:
         article = None
         if self.api_manager.active_model == 'claude':
             article = self.generate_with_claude(prompt, system_prompt)
-        elif self.api_manager.active_model == 'gpt4':
+        elif self.api_manager.active_model in ['gpt4', 'gpt-4.1-nano']:
             article = self.generate_with_gpt4(prompt, system_prompt)
         
         if article:

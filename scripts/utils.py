@@ -41,12 +41,13 @@ class APIKeyManager:
         self.claude_key = os.getenv('CLAUDE_API_KEY')
         self.gpt4_key = os.getenv('GPT4_API_KEY')
         self.active_model = os.getenv('AI_MODEL', 'claude').lower()
+        self.debug = os.getenv('DEBUG', 'False').lower() == 'true'
     
     def get_active_key(self) -> Optional[str]:
         """Get the API key for the active model"""
         if self.active_model == 'claude':
             return self.claude_key
-        elif self.active_model == 'gpt4':
+        elif self.active_model in ['gpt4', 'gpt-4.1-nano']:
             return self.gpt4_key
         return None
     

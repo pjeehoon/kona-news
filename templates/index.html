@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}KONA - AI로 만드는 투명한 뉴스{% endblock %}
+
+{% block content %}
+<h2>최신 뉴스</h2>
+<div class="articles">
+    {% for article in articles %}
+    <article>
+        <h3><a href="/articles/{{ article.id }}.html">{{ article.title }}</a></h3>
+        <p class="meta">{{ article.published_date }} | {{ article.category }}</p>
+        <p>{{ article.summary }}</p>
+    </article>
+    {% endfor %}
+</div>
+{% endblock %}

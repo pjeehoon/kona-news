@@ -48,7 +48,7 @@ ARTICLE_GENERATION_PROMPT = """다음 뉴스 정보를 바탕으로 한국 독�
 
 ## 출력 형식:
 ```json
-{
+{{
   "title": "기사 제목",
   "subtitle": "부제목 (선택사항)",
   "lead": "리드문",
@@ -57,7 +57,7 @@ ARTICLE_GENERATION_PROMPT = """다음 뉴스 정보를 바탕으로 한국 독�
   "sources": ["출처1", "출처2"],
   "category": "카테고리",
   "tags": ["태그1", "태그2"]
-}
+}}
 ```"""
 
 # Fact-checking prompt
@@ -78,13 +78,13 @@ FACT_CHECK_PROMPT = """다음 뉴스 기사의 사실을 검증해주세요.
 
 ## 출력 형식:
 ```json
-{
+{{
   "accuracy_score": 0-100,
   "verified_facts": ["검증된 사실1", "검증된 사실2"],
   "unverified_claims": ["미검증 주장1", "미검증 주장2"],
   "corrections_needed": ["수정 필요 사항1", "수정 필요 사항2"],
   "additional_sources_needed": ["추가 확인 필요 소스1"]
-}
+}}
 ```"""
 
 # Title optimization prompt

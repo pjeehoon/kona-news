@@ -91,3 +91,4 @@ Store API keys as GitHub Secrets:
 - Maintain minimal advertising (single Google AdSense banner)
 - All contributions should follow the open-source model
 - Target audience is Korean readers interested in AI-generated news
+- To run python code, use conda -n kona xxx
