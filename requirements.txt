@@ -2,6 +2,7 @@
 requests>=2.31.0
 beautifulsoup4>=4.12.2
 lxml>=4.9.3
+feedparser>=6.0.10
 
 # AI API clients
 anthropic>=0.18.0
@@ -28,4 +29,4 @@ mypy>=1.5.1
 
 # Type hints
 types-requests>=2.31.0
-types-beautifulsoup4>=4.12.2
+types-beautifulsoup4>=4.12.0

@@ -56,18 +56,32 @@ jobs:
     - name: Collect News (No API)
       run: |
         python scripts/collect_news.py
+      continue-on-error: false
     
     - name: List collected news
       run: |
         echo "Collected news files:"
         ls -la news_data/
     
+    - name: Check API Keys Configuration
+      if: github.event.inputs.dry_run != 'true'
+      run: |
+        echo "Checking API key configuration..."
+        if [[ -z "${{ secrets.CLAUDE_API_KEY }}" ]] && [[ -z "${{ secrets.GPT4_API_KEY }}" ]]; then
+          echo "ERROR: No API keys configured!"
+          echo "Please add either CLAUDE_API_KEY or GPT4_API_KEY to GitHub Secrets"
+          echo "Go to: Settings > Secrets and variables > Actions"
+          exit 1
+        else
+          echo "API keys are configured"
+        fi
+    
     - name: Generate Articles (Uses API)
       if: github.event.inputs.dry_run != 'true'
       env:
         CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
         GPT4_API_KEY: ${{ secrets.GPT4_API_KEY }}
-        AI_MODEL: ${{ secrets.AI_MODEL || 'claude' }}
+        AI_MODEL: ${{ secrets.AI_MODEL || 'gpt4' }}
         MAX_ARTICLES_PER_RUN: ${{ secrets.MAX_ARTICLES_PER_RUN || '5' }}
       run: |
         python scripts/generate_articles.py
@@ -81,7 +95,7 @@ jobs:
     - name: Generate HTML pages
       if: github.event.inputs.dry_run != 'true'
       run: |
-        python scripts/render_html.py || echo "HTML rendering script not yet implemented"
+        python scripts/render_html.py
     
     - name: Upload artifacts
       if: github.event.inputs.dry_run != 'true'

@@ -18,12 +18,16 @@ class NewsCollector:
     
     def __init__(self):
         self.sources = {
-            'naver': {
-                'breaking': 'https://news.naver.com/section/rss?sid=001',
-                'politics': 'https://news.naver.com/section/rss?sid=100',
-                'economy': 'https://news.naver.com/section/rss?sid=101',
-                'society': 'https://news.naver.com/section/rss?sid=102',
-                'tech': 'https://news.naver.com/section/rss?sid=105',
+            # Working RSS feeds for Korean news
+            'yonhap': {
+                'all_news': 'https://en.yna.co.kr/RSS/news.xml',
+            },
+            'google_news_kr': {
+                'top_stories': 'https://news.google.com/rss?hl=ko&gl=KR&ceid=KR:ko',
+                'business': 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx6TVdZU0FtdHZHZ0pMVWlnQVAB?hl=ko&gl=KR&ceid=KR:ko',
+                'technology': 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGRqTVhZU0FtdHZHZ0pMVWlnQVAB?hl=ko&gl=KR&ceid=KR:ko',
+                'entertainment': 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNREpxYW5RU0FtdHZHZ0pMVWlnQVAB?hl=ko&gl=KR&ceid=KR:ko',
+                'sports': 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRFp1ZEdvU0FtdHZHZ0pMVWlnQVAB?hl=ko&gl=KR&ceid=KR:ko',
             }
         }
         self.output_dir = Path('news_data')
@@ -33,6 +37,18 @@ class NewsCollector:
         """Collect news from a single RSS feed"""
         try:
             feed = feedparser.parse(url)
+            
+            # Check for HTTP errors
+            if hasattr(feed, 'status'):
+                if feed.status >= 400:
+                    print(f"  HTTP Error {feed.status} for {url}")
+                    return []
+                    
+            # Check if feed has entries
+            if not hasattr(feed, 'entries') or len(feed.entries) == 0:
+                print(f"  No entries found in feed: {url}")
+                return []
+            
             articles = []
             
             for entry in feed.entries[:10]:  # Limit to 10 articles per feed
@@ -41,13 +57,13 @@ class NewsCollector:
                     'link': entry.get('link', ''),
                     'description': entry.get('description', ''),
                     'published': entry.get('published', ''),
-                    'source': feed.feed.get('title', ''),
+                    'source': feed.feed.get('title', '') if hasattr(feed, 'feed') else '',
                 }
                 articles.append(article)
             
             return articles
         except Exception as e:
-            print(f"Error collecting from {url}: {e}")
+            print(f"  Exception collecting from {url}: {e}")
             return []
     
     def collect_all_news(self) -> Dict[str, List[Dict[str, Any]]]:

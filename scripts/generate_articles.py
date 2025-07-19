@@ -54,8 +54,7 @@ class ArticleGenerator:
             logger.info("Claude API client initialized")
             
         if self.api_manager.gpt4_key and openai:
-            openai.api_key = self.api_manager.gpt4_key
-            self.openai_client = openai
+            self.openai_client = openai.OpenAI(api_key=self.api_manager.gpt4_key)
             logger.info("OpenAI API client initialized")
     
     def select_top_stories(self, news_data: Dict[str, Any], limit: int = 5) -> List[Dict[str, Any]]:
@@ -130,8 +129,8 @@ class ArticleGenerator:
         try:
             self.rate_limiter.wait_if_needed()
             
-            response = self.openai_client.ChatCompletion.create(
-                model="gpt-4-turbo-preview",
+            response = self.openai_client.chat.completions.create(
+                model="gpt-4-turbo",
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": prompt}
